@@ -3116,6 +3116,9 @@ features.
 \item[VIRTIO_NET_F_CTRL_MAC_ADDR(23)] Set MAC address through control
     channel.
 
+\item[VIRTIO_NET_F_HASH_OFFLOAD(61)] Device supports supplying packet's
+    hash value to the driver.
+
 \item[VIRTIO_NET_F_CTRL_STEERING_MODE(60)] Device supports configurable steering
     mode.
 \end{description}
@@ -3320,6 +3323,7 @@ struct virtio_net_hdr {
         le16 csum_start;
         le16 csum_offset;
         le16 num_buffers;
+// Only if VIRTIO_NET_F_HASH_OFFLOAD has been negotiated
         le64 hash;
 };
 \end{lstlisting}
@@ -4016,6 +4020,25 @@ When using the legacy interface, transitional devices and drivers
 MUST format \field{virtqueue_pairs}
 according to the native endian of the guest rather than
 (necessarily when not using the legacy interface) little-endian.
+
+\paragraph{Hash offload}\label{sec:Device Types / Network Device / Device Operation / Control Virtqueue / Hash offload}
+
+If the driver negotiates the feature bit VIRTIO_NET_F_HASH_OFFLOAD, the device
+MUST provide the driver with the hash values used for distributing the packets
+among the receive queues.
+
+If this feature has been negotiated, the virtio net header has an additional
+\field{hash} field attached to it.
+
+\drivernormative{\subparagraph}{Hash offload}{Device Types / Network Device / Device Operation / Control Virtqueue / Hash offload}
+
+If the VIRTIO_NET_F_HASH_OFFLOAD feature has been successfully negotiated the,
+driver can access and use the \field{hash} field in the virtio net header.
+
+\devicenormative{\subparagraph}{Hash offload}{Device Types / Network Device / Device Operation / Control Virtqueue / Hash offload}
+
+If the VIRTIO_NET_F_HASH_OFFLOAD feature has been successfully negotiated, the
+device MUST supply the hash value for each packet in the \field{hash} field.
 
 \paragraph{Steering mode}\label{sec:Device Types / Network Device / Device Operation / Control Virtqueue / Steering mode}
 
